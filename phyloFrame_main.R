@@ -10,13 +10,14 @@ library(rpart.plot)
 library(vip)
 library(igraph)
 #phyloFrame(network, exomeAF, dz.signature, consensus_genes, expression, samples, clinical, out, "breast")
-source("/home/leslie.smith1/blue_kgraim/leslie.smith1/phyloFrame/network_grid_search/new_exomeAF_nosex_ordering.R")
-source("/home/leslie.smith1/blue_kgraim/leslie.smith1/phyloFrame/network_grid_search/expression_elasticnet.R")
-source("/home/leslie.smith1/blue_kgraim/leslie.smith1/phyloFrame/diseases/breast/breast.R")
+source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/new_exomeAF_nosex_ordering.R")
+source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/expression_elasticnet.R")
+source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/diseases/breast.R")
 
 
 get.network <- function(tissue.network, dz.sig, neighbor, edge.weight){
-  cut.graph <- tissue.network[tissue.network$Connection >= edge.weight,]
+  neighbor <- 1
+  cut.graph <- tissue.network[((tissue.network$Connection >= 0.2) & (tissue.network$Connection < 0.51)),]
   new.sig <- dz.sig[(dz.sig %in% cut.graph$Gene1 | dz.sig %in% cut.graph$Gene2)]
   ## -- some of the dz genes are not in network -> trim them out -- ##
   dat.graph <- graph.data.frame(cut.graph, directed =  FALSE)
@@ -33,7 +34,6 @@ get.network <- function(tissue.network, dz.sig, neighbor, edge.weight){
   return(node.names)
 }
 get.genes.V1 <- function(tiss.net, dz.genes, the.node, the.edge, benchmark.expression, exomeAF){
-  
   network.genes <- get.network(tiss.net, dz.genes, the.node, the.edge)
   top.anc.dat <- order_frequencies(network.genes, exomeAF)
   top.anc.dat <- unlist(top.anc.dat)
@@ -76,15 +76,16 @@ pf_top_varying_genes <- function(expression.dat,top.genes){
 
 get.genes.V2 <- function(tiss.net, dz.genes, the.node, the.edge, expression, exomeAF){
   network.genes <- get.network(tiss.net, dz.genes, the.node, the.edge)
-  top.anc.dat <- order_frequencies(network.genes, exomeAF)
+  top.anc.dat <- order_frequencies(network.genes, exomeAF) # base genes will be model genes (the base sig)
   top.anc.dat <- unlist(top.anc.dat)
-  print(length(top.anc.dat))
-  if(length(top.anc.dat) == 0){
-    top.anc.dat = pf_top_varying_genes(expression, 2000)
-  }
+  # print(length(top.anc.dat))
+  # if(length(top.anc.dat) == 0){
+  #   top.anc.dat = pf_top_varying_genes(expression, 2000)
+  # }
   # make sure genes are in the expression matrix
-  top.anc.dat <- top.anc.dat[top.anc.dat %in% colnames(expression)]
-  top.anc.dat <- top.anc.dat[!(top.anc.dat %in% dz.genes)]
+  top.anc.dat <- top.anc.dat[top.anc.dat %in% colnames(expression)] # make sure genes are in expression matrix
+  top.anc.dat <- top.anc.dat[!(top.anc.dat %in% dz.genes)] 
+  # do not increase expression of initial base genes
   print(length(top.anc.dat))
   genes <- list("phyloFrame" = top.anc.dat, "benchmark" = NULL) 
   return(genes)
@@ -97,7 +98,7 @@ ancestry.rescale<- function(expr.dat, ancestry.list){
     gene.vector <- expr.dat[,ancestry.list[i]]
     cur.max <- max(gene.vector)
     cur.min <- min(gene.vector)
-    new.max <- cur.max * 100
+    new.max <- cur.max * 700
     rescaled.vector <- rescale(gene.vector, to = c(cur.min, new.max), from = range(gene.vector, na.rm = TRUE, finite = TRUE))
     expr.dat[,ancestry.list[i]] <- rescaled.vector
   }
