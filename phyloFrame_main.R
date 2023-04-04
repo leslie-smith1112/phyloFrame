@@ -33,50 +33,30 @@ get.network <- function(tissue.network, dz.sig, neighbor, edge.weight){
   print("Completed finding gene signature neighborhood, moving to Exome allele frequencies.")
   return(node.names)
 }
-get.genes.V1 <- function(tiss.net, dz.genes, the.node, the.edge, benchmark.expression, exomeAF){
+get.genes.V1 <- function(tiss.net, dz.genes, the.node, the.edge, expression, exomeAF){
   network.genes <- get.network(tiss.net, dz.genes, the.node, the.edge)
-  top.anc.dat <- order_frequencies(network.genes, exomeAF)
-  top.anc.dat <- unlist(top.anc.dat)
+  top.anc.dat <- order_frequencies(network.genes, exomeAF, expression)
+  temp.anc <- unlist(top.anc.dat)
   ##only keep top n most variable acnestry genes 
   #temp.anc <- top.anc.dat[!(top.anc.dat %in% dz.genes)]
-  temp.anc <- temp.anc[temp.anc %in% colnames(benchmark.expression)]
-  temp.anc <- c(temp.anc, "subtype")
-  return(temp.anc)
-}
+  temp.anc <- temp.anc[temp.anc %in% colnames(expression)] # make sure genes are in the expression matrix
+  num.genes <- length(temp.anc)
+  top.anc.dat <- unique(c(dz.genes, temp.anc))
+  top.anc.dat <- c(top.anc.dat, "subtype")
   
-  
-  # anc.bench <- benchmark.expression[,colnames(benchmark.expression) %in% temp.anc] ## only keep ancstry genes
-  # anc.variance <- apply(anc.bench, 2, var)
-  # var.anc<- anc.variance[order(anc.variance, decreasing = TRUE)]
-  # genes.anc <- var.anc[1:125] 
-#   # top.anc.dat <- names(genes.anc)
-#   num.genes <- length(top.anc.dat)
-#   top.anc.dat <- unique(c(dz.genes, top.anc.dat)) # keep base genes in 
-#   #top.anc.dat <- top.anc.dat[top.anc.dat %in% colnames(benchmark.expression)]
-#   top.anc.dat <- c(top.anc.dat, "subtype")
-#   #network, model.genes, node, edge, expression, exomeAF
-#   #BENCHAMRK 
-#   expr.variance <- apply(benchmark.expression, 2, var)
-#   var.ordered <- expr.variance[order(expr.variance, decreasing = TRUE)]
-#   genes.keep <- var.ordered[1:num.genes] 
-#   n.variable.genes<- names(genes.keep)
-#   n.variable.genes <- c(dz.genes, n.variable.genes, "subtype")
-#   genes <- list("phyloFrame" = top.anc.dat, "benchmark" = n.variable.genes) 
-#   return(genes)
-# }
-
-pf_top_varying_genes <- function(expression.dat,top.genes){
-  expr.variance <- apply(expression.dat, 2, var)
+  expr.variance <- apply(expression, 2, var)
   var.ordered <- expr.variance[order(expr.variance, decreasing = TRUE)]
-  genes.keep <- var.ordered[1:top.genes]
-  genes.keep <- names(genes.keep)
-  genes.keep <- c(genes.keep,"subtype")
-  return(genes.keep)
+  genes.keep <- var.ordered[1:num.genes]
+  n.variable.genes<- names(genes.keep)
+  n.variable.genes <- c(dz.genes, n.variable.genes, "subtype")
+  genes <- list("phyloFrame" = top.anc.dat, "benchmark" = n.variable.genes)
+  return(genes)
+ 
 }
 
 get.genes.V2 <- function(tiss.net, dz.genes, the.node, the.edge, expression, exomeAF){
   network.genes <- get.network(tiss.net, dz.genes, the.node, the.edge)
-  top.anc.dat <- order_frequencies(network.genes, exomeAF) # base genes will be model genes (the base sig)
+  top.anc.dat <- order_frequencies(network.genes, exomeAF, expression) # base genes will be model genes (the base sig)
   top.anc.dat <- unlist(top.anc.dat)
   # print(length(top.anc.dat))
   # if(length(top.anc.dat) == 0){
@@ -98,7 +78,7 @@ ancestry.rescale<- function(expr.dat, ancestry.list){
     gene.vector <- expr.dat[,ancestry.list[i]]
     cur.max <- max(gene.vector)
     cur.min <- min(gene.vector)
-    new.max <- cur.max * 700
+    new.max <- cur.max * 500
     rescaled.vector <- rescale(gene.vector, to = c(cur.min, new.max), from = range(gene.vector, na.rm = TRUE, finite = TRUE))
     expr.dat[,ancestry.list[i]] <- rescaled.vector
   }
