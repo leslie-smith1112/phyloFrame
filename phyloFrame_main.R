@@ -78,7 +78,7 @@ ancestry.rescale<- function(expr.dat, ancestry.list){
     gene.vector <- expr.dat[,ancestry.list[i]]
     cur.max <- max(gene.vector)
     cur.min <- min(gene.vector)
-    new.max <- cur.max * 500
+    new.max <- cur.max * 700
     rescaled.vector <- rescale(gene.vector, to = c(cur.min, new.max), from = range(gene.vector, na.rm = TRUE, finite = TRUE))
     expr.dat[,ancestry.list[i]] <- rescaled.vector
   }
