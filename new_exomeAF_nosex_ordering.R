@@ -25,9 +25,9 @@ pf_top_varying_genes <- function(expression.dat,top.genes){
 order_frequencies <- function(include_genes, exome_file, expression){
   #### keep only include genes that are relevant in network ####
   no_sex <- exome_file[exome_file$gene %in% include_genes,] # genes from the human base network 
-  keep.num <- 70
-  upper.bound <- 0.45
-  lower.bound <- 0.001
+  keep.num <- 50
+  upper.bound <- 0.45 #1#
+  lower.bound <- 0.001 #0.5#
   
   mutationburden.upper <- 1000
   mutationburden.lower <- 0
