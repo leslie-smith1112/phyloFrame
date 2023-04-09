@@ -258,7 +258,7 @@ if(continue == 1){
     	benchmark.genes <- c(benchmark.genes, model.genes)
 
       write.table(anc.genes.dat, file = paste0(ancestry.dir, "/eur_",out_f,"_genes.txt" ), sep = "\t", col.names = TRUE, row.names = FALSE)
-      eur_model <- phyloFrame(NULL, eur.train, new.dir.eur, out_f, run.penalties) #BENCHMARK
+      eur_model <- phyloFrame(benchmark.genes, eur.train, new.dir.eur, out_f, run.penalties) #BENCHMARK
 	## ADDED
 	    pf.pass.genes <- c(temp.anc.genes, model.genes, "subtype")#ADDED
       # find max value in expression matrix 
@@ -266,7 +266,7 @@ if(continue == 1){
       #keep.genes <- c(base.eur.genes,model.genes, temp.anc.genes, "subtype")
       #rescaled.eur.train <- rescaled.eur.train[,colnames(rescaled.eur.train) %in% keep.genes]
       #pf.in.genes <- c(pf.in.genes, "subtype")
-      pf.eur.model <- phyloFrame(NULL, rescaled.eur.train, pf.new.dir.eur, out_f, run.penalties) #PHYLOFRAME
+      pf.eur.model <- phyloFrame(pf.pass.genes, rescaled.eur.train, pf.new.dir.eur, out_f, run.penalties) #PHYLOFRAME
     
     }else{
       model.input.genes <- get.genes.V1(network, model.genes, node, edge, eur.train, exomeAF) #get network genes for phyloframe and varying genes for benchmark for this batch
@@ -370,10 +370,10 @@ if(continue == 1){
       benchmark.genes <- c(benchmark.genes, model.genes)
       
       write.table(anc.genes.dat, file = paste0(ancestry.dir, "/afr_",out_f,"_genes.txt" ), sep = "\t", col.names = TRUE, row.names = FALSE)
-      afr_model <- phyloFrame(NULL, afr.train, new.dir.afr, out_f, run.penalties) #BENCHMARK
+      afr_model <- phyloFrame(benchmark.genes, afr.train, new.dir.afr, out_f, run.penalties) #BENCHMARK
       rescaled.afr.train <- ancestry.rescale(afr.train, temp.anc.genes)
       pf.pass.genes <- c(temp.anc.genes, model.genes, "subtype")
-      pf.afr.model <- phyloFrame(NULL, rescaled.afr.train, pf.new.dir.afr, out_f, run.penalties) #PHYLOFRAME - all 20000 get run 
+      pf.afr.model <- phyloFrame(pf.pass.genes, rescaled.afr.train, pf.new.dir.afr, out_f, run.penalties) #PHYLOFRAME - all 20000 get run 
     }else{
       model.input.genes <- get.genes.V1(network, model.genes, node, edge, afr.train, exomeAF) #get network genes for phyloframe and varying genes for benchmark for this batch
       ancestry.genes <- model.input.genes$phyloFrame # these get passed into phyloframe with no penalty
@@ -457,10 +457,10 @@ if(continue == 1){
         benchmark.genes <- c(benchmark.genes, model.genes)
         
         write.table(anc.genes.dat, file = paste0(ancestry.dir, "/eas_",out_f,"_genes.txt" ), sep = "\t", col.names = TRUE, row.names = FALSE)
-        eas.model <- phyloFrame(NULL, eas.train, new.dir.eas, out_f, run.penalties) #BENCHMARK
+        eas.model <- phyloFrame(benchmark.genes, eas.train, new.dir.eas, out_f, run.penalties) #BENCHMARK
         rescaled.eas.train <- ancestry.rescale(eas.train, temp.anc.genes)
         pf.pass.genes <- c(temp.anc.genes, model.genes, "subtype")
-        pf.eas.model <- phyloFrame(NULL, rescaled.eas.train, pf.new.dir.eas, out_f, run.penalties) #PHYLOFRAME
+        pf.eas.model <- phyloFrame(pf.pass.genes, rescaled.eas.train, pf.new.dir.eas, out_f, run.penalties) #PHYLOFRAME
       }else{
         model.input.genes <- get.genes.V1(network, model.genes, node, edge, eas.train, exomeAF) #get network genes for phyloframe and varying genes for benchmark for this batch
         ancestry.genes <- model.input.genes$phyloFrame # these get passed into phyloframe with no penalty
@@ -544,10 +544,10 @@ if(continue == 1){
       benchmark.genes <- c(benchmark.genes, model.genes)
       
       write.table(anc.genes.dat, file = paste0(ancestry.dir, "/admixed_",out_f,"_genes.txt" ), sep = "\t", col.names = TRUE, row.names = FALSE)
-      admixed.model <- phyloFrame(NULL, admixed.train, new.dir.adm, out_f, run.penalties) #BENCHMARK
+      admixed.model <- phyloFrame(benchmark.genes, admixed.train, new.dir.adm, out_f, run.penalties) #BENCHMARK
       rescaled.admixed.train <- ancestry.rescale(admixed.train, temp.anc.genes)
       pf.pass.genes <- c(temp.anc.genes, model.genes, "subtype")
-      pf.admixed.model <- phyloFrame(NULL, rescaled.admixed.train, pf.new.dir.adm, out_f, run.penalties) #PHYLOFRAME
+      pf.admixed.model <- phyloFrame(pf.pass.genes, rescaled.admixed.train, pf.new.dir.adm, out_f, run.penalties) #PHYLOFRAME
     }else{
       model.input.genes <- get.genes.V1(network, model.genes, node, edge, admixed.train, exomeAF) #get network genes for phyloframe and varying genes for benchmark for this batch
       ancestry.genes <- model.input.genes$phyloFrame # these get passed into phyloframe with no penalty
@@ -629,10 +629,10 @@ if(continue == 1){
       benchmark.genes <- c(benchmark.genes, model.genes)
       
       write.table(anc.genes.dat, file = paste0(ancestry.dir, "/mixed_",out_f,"_genes.txt" ), sep = "\t", col.names = TRUE, row.names = FALSE)
-      mixed.model <- phyloFrame(NULL, mixed.train, new.dir.mix, out_f,run.penalties) #BENCHMARK
+      mixed.model <- phyloFrame(benchmark.genes, mixed.train, new.dir.mix, out_f,run.penalties) #BENCHMARK
       rescaled.mixed.train <- ancestry.rescale(mixed.train, temp.anc.genes)
       pf.pass.genes <- c(temp.anc.genes, model.genes, "subtype")#ADDED
-      pf.mixed.model <- phyloFrame(NULL, rescaled.mixed.train, pf.new.dir.mix, out_f, run.penalties) #PHYLOFRAME
+      pf.mixed.model <- phyloFrame(pf.pass.genes, rescaled.mixed.train, pf.new.dir.mix, out_f, run.penalties) #PHYLOFRAME
     }else{
       model.input.genes <- get.genes.V1(network, model.genes, node, edge, mixed.train, exomeAF) #get network genes for phyloframe and varying genes for benchmark for this batch
       ancestry.genes <- model.input.genes$phyloFrame # 
