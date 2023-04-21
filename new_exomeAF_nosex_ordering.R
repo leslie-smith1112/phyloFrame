@@ -26,10 +26,10 @@ order_frequencies <- function(include_genes, exome_file, expression){
   #### keep only include genes that are relevant in network ####
   no_sex <- exome_file[exome_file$gene %in% include_genes,] # genes from the human base network 
   keep.num <- 50
-  upper.bound <- 0.45 #1#
+  upper.bound <- 1 #1#
   lower.bound <- 0.001 #0.5#
   
-  mutationburden.upper <- 1000
+  mutationburden.upper <- 10000
   mutationburden.lower <- 0
   #### dataframe to hold the genes selected for each ancestry ####
   #dat <- list()
@@ -56,7 +56,8 @@ order_frequencies <- function(include_genes, exome_file, expression){
   afr.snps.k <- afr.nsnps[(afr.nsnps$afr > lower.bound & afr.nsnps$afr < upper.bound),] # only keeps snps within enhanced allele frequency range
   
   #afr.o <- afr_snps[order(afr_snps$afr, decreasing = TRUE),]
-  afr.keep <- unique(na.omit(afr.snps.k$gene))
+  #afr.keep <- unique(na.omit(afr.snps.k$gene))
+  afr.keep <- na.omit(afr.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% afr.keep]
   afr.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -79,7 +80,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   eas.snps.k <- eas.nsnps[(eas.nsnps$eas > lower.bound & eas.nsnps$eas < upper.bound),]
   
   #eas.o <- eas_snps[order(eas_snps$eas, decreasing = TRUE),]
-  eas.keep <- unique(na.omit(eas.snps.k$gene))
+  eas.keep <- na.omit(eas.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% eas.keep]
   eas.keep <- pf_top_varying_genes(temp.expr, keep.num)
   #eas.keep <- eas.keep[1:keep.num] # keep top most enhanced genes 
@@ -99,7 +100,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   nfe.snps.k <- nfe.nsnps[(nfe.nsnps$nfe > lower.bound & nfe.nsnps$nfe < upper.bound),]
   
   #nfe.o <- nfe_snps[order(nfe_snps$nfe, decrnfeing = TRUE),]
-  nfe.keep <- unique(na.omit(nfe.snps.k$gene))
+  nfe.keep <- na.omit(nfe.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% nfe.keep]
   nfe.keep <- pf_top_varying_genes(temp.expr, keep.num)
   #nfe.keep <- nfe.keep[1:keep.num] # keep top most enhanced genes 
@@ -120,7 +121,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   
   #amr.o <- amr_snps[order(amr_snps$amr, decramring = TRUE),]
   
-  amr.keep <- unique(na.omit(amr.snps.k$gene))
+  amr.keep <- na.omit(amr.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% amr.keep]
   amr.keep <- pf_top_varying_genes(temp.expr, keep.num)
   #amr.keep <- amr.keep[1:keep.num] # keep top most enhanced genes 
@@ -140,7 +141,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   fin.snps.k <- fin.nsnps[(fin.nsnps$fin > lower.bound & fin.nsnps$fin < upper.bound),]
   
   #fin.o <- fin_snps[order(fin_snps$fin, decrfining = TRUE),]
-  fin.keep <- unique(na.omit(fin.snps.k$gene))# top most enhanced genes 
+  fin.keep <- na.omit(fin.snps.k$gene)# top most enhanced genes 
   temp.expr <- expression[,colnames(expression) %in% fin.keep]
   fin.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -158,7 +159,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   eas_oea.snps.k <- eas_oea.nsnps[(eas_oea.nsnps$eas_oea > lower.bound & eas_oea.nsnps$eas_oea < upper.bound),]
   
   #eas_oea.o <- eas_oea_snps[order(eas_oea_snps$eas_oea, decreas_oeaing = TRUE),]
-  eas_oea.keep <- unique(na.omit(eas_oea.snps.k$gene))
+  eas_oea.keep <- na.omit(eas_oea.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% eas_oea.keep]
   eas_oea.keep <- pf_top_varying_genes(temp.expr, keep.num)
   dat <- c(dat,eas_oea.keep)
@@ -175,7 +176,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   nfe_nwe.snps.k <- nfe_nwe.nsnps[(nfe_nwe.nsnps$nfe_nwe > lower.bound & nfe_nwe.nsnps$nfe_nwe < upper.bound),]
   
   #nfe_nwe.o <- nfe_nwe_snps[order(nfe_nwe_snps$nfe_nwe, decrnfe_nweing = TRUE),]
-  nfe_nwe.keep <- unique(na.omit(nfe_nwe.snps.k$gene))
+  nfe_nwe.keep <- na.omit(nfe_nwe.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% nfe_nwe.keep]
   nfe_nwe.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -193,7 +194,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   nfe_onf.snps.k <- nfe_onf.nsnps[(nfe_onf.nsnps$nfe_onf > lower.bound & nfe_onf.nsnps$nfe_onf < upper.bound),]
   
   #nfe_onf.o <- nfe_onf_snps[order(nfe_onf_snps$nfe_onf, decrnfe_onfing = TRUE),]
-  nfe_onf.keep <- unique(na.omit(nfe_onf.snps.k$gene))
+  nfe_onf.keep <- na.omit(nfe_onf.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% nfe_onf.keep]
   nfe_onf.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -212,7 +213,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   nfe_seu.snps.k <- nfe_seu.nsnps[(nfe_seu.nsnps$nfe_seu > lower.bound & nfe_seu.nsnps$nfe_seu < upper.bound),]
   
   #nfe_seu.o <- nfe_seu_snps[order(nfe_seu_snps$nfe_seu, decrnfe_seuing = TRUE),]
-  nfe_seu.keep <- unique(na.omit(nfe_seu.snps.k$gene))
+  nfe_seu.keep <- na.omit(nfe_seu.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% nfe_seu.keep]
   nfe_seu.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -230,7 +231,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   nfe_swe.snps.k <- nfe_swe.nsnps[(nfe_swe.nsnps$nfe_swe > lower.bound & nfe_swe.nsnps$nfe_swe < upper.bound),]
   
   #nfe_swe.o <- nfe_swe_snps[order(nfe_swe_snps$nfe_swe, decrnfe_sweing = TRUE),]
-  nfe_swe.keep <- unique(na.omit(nfe_swe.snps.k$gene))#eep top most enhanced genes 
+  nfe_swe.keep <- na.omit(nfe_swe.snps.k$gene)#eep top most enhanced genes 
   temp.expr <- expression[,colnames(expression) %in% nfe_swe.keep]
   nfe_swe.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -248,7 +249,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   sas.snps.k <- sas.nsnps[(sas.nsnps$sas > lower.bound & sas.nsnps$sas < upper.bound),]
   
   #sas.o <- sas_snps[order(sas_snps$sas, decrsasing = TRUE),]
-  sas.keep <- unique(na.omit(sas.snps.k$gene))
+  sas.keep <- na.omit(sas.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% sas.keep]
   sas.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -267,7 +268,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   nfe_bgr.snps.k <- nfe_bgr.nsnps[(nfe_bgr.nsnps$nfe_bgr > lower.bound & nfe_bgr.nsnps$nfe_bgr < upper.bound),]
   
   #nfe_bgr.o <- nfe_bgr_snps[order(nfe_bgr_snps$nfe_bgr, decrnfe_bgring = TRUE),]
-  nfe_bgr.keep <- unique(na.omit(nfe_bgr.snps.k$gene))
+  nfe_bgr.keep <- na.omit(nfe_bgr.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% nfe_bgr.keep]
   nfe_bgr.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -286,7 +287,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   eas_jpn.snps.k <- eas_jpn.nsnps[(eas_jpn.nsnps$eas_jpn > lower.bound & eas_jpn.nsnps$eas_jpn < upper.bound),]
   
   #eas_jpn.o <- eas_jpn_snps[order(eas_jpn_snps$eas_jpn, decreas_jpning = TRUE),]
-  eas_jpn.keep <- unique(na.omit(eas_jpn.snps.k$gene))
+  eas_jpn.keep <- na.omit(eas_jpn.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% eas_jpn.keep]
   eas_jpn.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -308,7 +309,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   eas_kor.snps.k <- eas_kor.nsnps[(eas_kor.nsnps$eas_kor > lower.bound & eas_kor.nsnps$eas_kor < upper.bound),]
   
   #eas_kor.o <- eas_kor_snps[order(eas_kor_snps$eas_kor, decreas_koring = TRUE),]
-  eas_kor.keep <- unique(na.omit(eas_kor.snps.k$gene))
+  eas_kor.keep <- na.omit(eas_kor.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% eas_kor.keep]
   eas_kor.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -326,7 +327,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   nfe_est.k <- nfe_est.t[nfe_est.t < mutationburden.upper & nfe_est.t > mutationburden.lower]
   nfe_est.nsnps <- nfe_est_snps[nfe_est_snps$gene %in% names(nfe_est.k),]
   nfe_est.snps.k <- nfe_est.nsnps[(nfe_est.nsnps$nfe_est > lower.bound & nfe_est.nsnps$nfe_est < upper.bound),]
-  nfe_est.keep <- unique(na.omit(nfe_est.snps.k$gene))
+  nfe_est.keep <- na.omit(nfe_est.snps.k$gene)
   
   temp.expr <- expression[,colnames(expression) %in% nfe_est.keep]
   nfe_est.keep <- pf_top_varying_genes(temp.expr, keep.num)
@@ -345,7 +346,7 @@ order_frequencies <- function(include_genes, exome_file, expression){
   asj.nsnps <- asj_snps[asj_snps$gene %in% names(asj.k),]
   asj.snps.k <- asj.nsnps[(asj.nsnps$asj > lower.bound & asj.nsnps$asj < upper.bound),]
 
-  asj.keep <- unique(na.omit(asj.snps.k$gene))
+  asj.keep <- na.omit(asj.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% asj.keep]
   asj.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
@@ -365,14 +366,19 @@ order_frequencies <- function(include_genes, exome_file, expression){
   oth.snps.k <- oth.nsnps[(oth.nsnps$oth > lower.bound & oth.nsnps$oth < upper.bound),]
   
   #oth.o <- oth_snps[order(oth_snps$oth, decrothing = TRUE),]
-  oth.keep <- unique(na.omit(oth.snps.k$gene))
+  oth.keep <- na.omit(oth.snps.k$gene)
   temp.expr <- expression[,colnames(expression) %in% oth.keep]
   oth.keep <- pf_top_varying_genes(temp.expr, keep.num)
   
   dat <- c(dat,oth.keep)
-  dat <- unique(dat)
+  dat <- dat
   dat <- dat[dat %in% "subtype" == FALSE] # get rid of subtype 
+  valid.keep <- unique(dat)
+  # valid.genes <- table(dat)
+  # valid.keep <- valid.genes[valid.genes > 8] # chose 8 becauses there are 8 european ancestries.
+  # valid.keep <-  names(valid.keep)
   
+  ## table 
   
-  return(dat)
+  return(valid.keep)
   }
