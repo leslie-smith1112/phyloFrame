@@ -68,9 +68,7 @@ print(paste0("DISEASE: ", disease, " V2 AND BASE PF PENALTY: ", en.mixture, " MO
 
 exomeAF <- readr::read_tsv("/home/leslie.smith1/blue_kgraim/leslie.smith1/phyloFrame/preprocessing/mean_enhancedAF_exome.tsv", col_names = TRUE)
 
-## 1. CALL INIT METHHOD FOR GIVEN CANCER ##
-
- ### TO DO FOR EAACH DISEASE ADD EDGE AND NODE VALUES 
+## CALL INIT METHHOD FOR GIVEN CANCER ##
 if (disease == "breast"){
   initialize.disease <- breast.init()
   cancer.type <- "BRCA"
@@ -92,8 +90,8 @@ if (disease == "breast"){
   cancer.type <- "UCEC"
   subtype1 <- "Endometrioid"
   subtype2 <- "Serous"
-  node <- 2 #3
-  edge <-  0.65  # 0.5 0.65
+  #node <- 2 #3
+  #edge <-  0.65  # 0.5 0.65
   continue <- 1
 }else{
   print("Please enter a valid disease, currently they are: 1. breast 2. thyroid 3. uterine")
@@ -106,8 +104,34 @@ if(continue == 1){
   samples.ancestry <- initialize.disease$samples.anc
   network <- initialize.disease$net
   
+  ######################################################################
+  #TEMPORARY ADD FOR THE VALIDAITON SET
+  ######################################################################
+  #we just read this in to get the genes
+  expr.dat <- readr::read_tsv("/home/leslie.smith1/blue_kgraim/leslie.smith1/phyloFrame/diseases/AACR_2023_poster/GSE211167_tpm_matrix.txt")
+
+  names(expr.dat)[names(expr.dat) == "HID1"] <- "C17orf28"
+  names(expr.dat)[names(expr.dat) == "CYP2B7P"] <- "CYP2B7P1"
+  names(expr.dat)[names(expr.dat) == "MISP"] <- "C19orf21"
+  names(expr.dat)[names(expr.dat) == "BRINP3"] <- "FAM5C"
+  names(expr.dat)[names(expr.dat) == "CT83"] <- "CXorf61"
+  names(expr.dat)[names(expr.dat) == "BPIFB1"] <- "C20orf114"
+  names(expr.dat)[names(expr.dat) == "FDCSP"] <- "C4orf7"
+  names(expr.dat)[names(expr.dat) == "SOWAHA"] <- "ANKRD43"
+  names(expr.dat)[names(expr.dat) == "BRINP3"] <- "FAM5C"
+  names(expr.dat)[names(expr.dat) == "MS4A8"] <- "MS4A8B"
+  names(expr.dat)[names(expr.dat) == "NEURL1"] <- "NEURL"
+  names(expr.dat)[names(expr.dat) == "NSG2"] <- "HMP19"
+  names(expr.dat)[names(expr.dat) == "GPC1"] <- "GPC1-AS1"
+
+  allowed.genes <- colnames(expr.dat)
+  
+  ######################################################################
+  
+  ######################################################################
   ## trim matrix to delete NA columns ## 
-  expr <- trim.expr.matrix(expr.mat, NULL, NULL)
+  expr <- trim.expr.matrix(expr.mat, allowed.genes, NULL) #for validation set change 2nd param to allowed.genes - then change back to NULL 
+  
   # if genes have 2 sets of reads, take average 
   expr <- expr %>% 
     group_by(Hugo_Symbol) %>% 
@@ -126,21 +150,6 @@ if(continue == 1){
   }else{
     print("ERROR 1")
   }
-  
-
-  ## differential expression analysis ##  - CHANGING HERE TO SEE WHAT HAPPEND IF GIVE BOTH VARIANCE 
-  # de.expr <- column_to_rownames(expr, "Hugo_Symbol")  #DE needs samples in columns and genes in rows
-  # de.expr <- de.expr[,colnames(de.expr) %in% rownames(expression)]
-  # de.meta <- data.frame(rownames(expression), expression$subtype)
-  # colnames(de.meta) <- c("sample_id", "subtype")
-  # de.meta$subtype <- as.factor(de.meta$subtype)
-  # de.expr <- de.expr %>%
-  #   dplyr::select(de.meta$sample_id)
-  # all.equal(colnames(de.expr), de.meta$sample_id)
-  # de.genes <- compute_DE(de.expr, de.meta)
-  # de.sig <- de.genes[de.genes$threshold == TRUE,]
-  # dim(de.sig)
-  # dz.genes <- de.sig$Gene
 
   dir <- paste0("/home/leslie.smith1/blue_kgraim/leslie.smith1/phyloFrame/diseases/", disease, "/")######CHANGE PER CANCER TYPE
   
@@ -154,13 +163,23 @@ if(continue == 1){
   # mixed.batch <- batch.count$mixed
   # mixed.samples <- batch.count$mixed_samples
   
+  ### proposed for poster - model that trained on all but afr samples: and tested on validation set ### 
+  
+  # afr.samples <- samples.ancestry[samples.ancestry$consensus_ancestry == "afr",]$patient
+  # train.samples <- samples.ancestry[!samples.ancestry$consensus_ancestry == "afr",]$patient
+  # train.expr <- trim.expr.matrix_OG(expression, train.samples)
+  # train.expr$subtype <- as.factor(train.expr$subtype)
+  # train.expr <- trim.expr.matrix_OG(expression, train.samples)
+  # train.expr$subtype <- as.factor(train.expr$subtype)
+  ##### 
+  
   # for not making new samples each run. 
   afr.batch <- length(list.files(paste0(dir,"samples/afr/")))
   eas.batch <- length(list.files(paste0(dir,"samples/eas/")))
   eur.batch <- length(list.files(paste0(dir,"samples/eur/")))
   admixed.batch <- length(list.files(paste0(dir,"samples/admixed/")))
   mixed.batch <- length(list.files(paste0(dir,"samples/mixed_ancestry/")))
-  ## to get all mixed sample IDs, this is to test on mixed samples, becasue mixed samples are interwovem with all othe ancestries ## 
+  ## to get all mixed sample IDs, this is to test on mixed samples, becasue mixed samples are interwoven with all othe ancestries ## 
   mixed <- list.files(paste0(dir,"samples/mixed_ancestry/"))
   mixed <- paste0(dir,"samples/mixed_ancestry/", mixed)
   all.mixed.samples <- lapply(mixed, readr::read_tsv)
@@ -177,8 +196,9 @@ if(continue == 1){
   admix.samples.eur <- samples.ancestry[samples.ancestry$consensus_ancestry == "eur_admix",]$patient
   admix.samples.gen <- samples.ancestry[samples.ancestry$consensus_ancestry == "admix",]$patient
   admixed.samples <- c(admix.samples.eas, admix.samples.afr, admix.samples.eur, admix.samples.gen)
-  
+  #afr.eur
   #2. get ancestry samples to run for testing 
+  
   eur.expr <- trim.expr.matrix_OG(expression, eur.samples)
   eur.expr$subtype <- as.factor(eur.expr$subtype)
   afr.expr <- trim.expr.matrix_OG(expression, afr.samples)
@@ -240,6 +260,7 @@ if(continue == 1){
     
     ## get base genes for phyloFrame
     base.eur.genes <- pf_top_varying_genes(eur.train, variable.genes)
+    
     eur.base_pf <- phyloFrame(base.eur.genes, eur.train, pf.base.new.eur, out_f, en.mixture) ## PF BASELINE SIG - this gives back a model - we dont actually need it 
     
     ## read back in the signature to use genes as start for network walk
@@ -253,20 +274,25 @@ if(continue == 1){
       temp.anc.genes <- ancestry.genes[!(ancestry.genes %in% model.genes)]
       #temp.anc.genes <- ancestry.genes
       anc.genes.dat <- as.data.frame(temp.anc.genes)
-    	variable.genes <- length(anc.genes.dat$temp.anc.genes)
-    	benchmark.genes <- pf_top_varying_genes(eur.train,length(temp.anc.genes))## ADDED
-    	benchmark.genes <- c(benchmark.genes, model.genes)
+    	#variable.genes <- length(anc.genes.dat$temp.anc.genes)
+    	
+    	gene.list <- base.eur.genes[-length(base.eur.genes)]
+    	index <- sample(1:length(gene.list), length(temp.anc.genes)) # need to add to each ancestry. 
+    	benchmark.genes <- gene.list[index]
+    	benchmark.genes <- c(benchmark.genes, model.genes,"subtype")
+    	#benchmark.genes <- pf_top_varying_genes(eur.train,length(temp.anc.genes))## ADDED
+    	#benchmark.genes <- c(benchmark.genes, model.genes)
 
       write.table(anc.genes.dat, file = paste0(ancestry.dir, "/eur_",out_f,"_genes.txt" ), sep = "\t", col.names = TRUE, row.names = FALSE)
       eur_model <- phyloFrame(benchmark.genes, eur.train, new.dir.eur, out_f, run.penalties) #BENCHMARK
 	## ADDED
 	    pf.pass.genes <- c(temp.anc.genes, model.genes, "subtype")#ADDED
       # find max value in expression matrix 
-      rescaled.eur.train <- ancestry.rescale(eur.train, temp.anc.genes)
+      #rescaled.eur.train <- ancestry.rescale(eur.train, temp.anc.genes)
       #keep.genes <- c(base.eur.genes,model.genes, temp.anc.genes, "subtype")
       #rescaled.eur.train <- rescaled.eur.train[,colnames(rescaled.eur.train) %in% keep.genes]
       #pf.in.genes <- c(pf.in.genes, "subtype")
-      pf.eur.model <- phyloFrame(pf.pass.genes, rescaled.eur.train, pf.new.dir.eur, out_f, run.penalties) #PHYLOFRAME
+      pf.eur.model <- phyloFrame(pf.pass.genes, eur.train, pf.new.dir.eur, out_f, run.penalties) #PHYLOFRAME
     
     }else{
       model.input.genes <- get.genes.V1(network, model.genes, node, edge, eur.train, exomeAF) #get network genes for phyloframe and varying genes for benchmark for this batch
@@ -365,15 +391,18 @@ if(continue == 1){
       ancestry.genes <- model.input.genes$phyloFrame # these get passed into phyloframe with no penalty
       temp.anc.genes <- ancestry.genes[!(ancestry.genes %in% model.genes)]
       anc.genes.dat <- as.data.frame(temp.anc.genes)
-      variable.genes <- length(anc.genes.dat$temp.anc.genes)
-      benchmark.genes <- pf_top_varying_genes(afr.train,length(temp.anc.genes))## ADDED
-      benchmark.genes <- c(benchmark.genes, model.genes)
-      
+      #variable.genes <- length(anc.genes.dat$temp.anc.genes)
+      #benchmark.genes <- pf_top_varying_genes(afr.train,length(temp.anc.genes))## ADDED
+      #benchmark.genes <- c(benchmark.genes, model.genes)
+      gene.list <- base.afr.genes[-length(base.afr.genes)]
+      index <- sample(1:length(gene.list), length(temp.anc.genes)) # need to add to each ancestry. 
+      benchmark.genes <- gene.list[index]
+      benchmark.genes <- c(benchmark.genes, model.genes,"subtype")
       write.table(anc.genes.dat, file = paste0(ancestry.dir, "/afr_",out_f,"_genes.txt" ), sep = "\t", col.names = TRUE, row.names = FALSE)
       afr_model <- phyloFrame(benchmark.genes, afr.train, new.dir.afr, out_f, run.penalties) #BENCHMARK
-      rescaled.afr.train <- ancestry.rescale(afr.train, temp.anc.genes)
+      #rescaled.afr.train <- ancestry.rescale(afr.train, temp.anc.genes)
       pf.pass.genes <- c(temp.anc.genes, model.genes, "subtype")
-      pf.afr.model <- phyloFrame(pf.pass.genes, rescaled.afr.train, pf.new.dir.afr, out_f, run.penalties) #PHYLOFRAME - all 20000 get run 
+      pf.afr.model <- phyloFrame(pf.pass.genes, afr.train, pf.new.dir.afr, out_f, run.penalties) #PHYLOFRAME - all 20000 get run 
     }else{
       model.input.genes <- get.genes.V1(network, model.genes, node, edge, afr.train, exomeAF) #get network genes for phyloframe and varying genes for benchmark for this batch
       ancestry.genes <- model.input.genes$phyloFrame # these get passed into phyloframe with no penalty
@@ -452,15 +481,19 @@ if(continue == 1){
         ancestry.genes <- model.input.genes$phyloFrame
         temp.anc.genes <- ancestry.genes[!(ancestry.genes %in% model.genes)]
         anc.genes.dat <- as.data.frame(temp.anc.genes)
-        variable.genes <- length(anc.genes.dat$temp.anc.genes)
-        benchmark.genes <- pf_top_varying_genes(eas.train,length(temp.anc.genes))## ADDED
-        benchmark.genes <- c(benchmark.genes, model.genes)
-        
+        #variable.genes <- length(anc.genes.dat$temp.anc.genes)
+        # benchmark.genes <- pf_top_varying_genes(eas.train,length(temp.anc.genes))## ADDED
+        # benchmark.genes <- c(benchmark.genes, model.genes)
+        # 
+        gene.list <- base.eas.genes[-length(base.eas.genes)]
+        index <- sample(1:length(gene.list), length(temp.anc.genes)) # need to add to each ancestry. 
+        benchmark.genes <- gene.list[index]
+        benchmark.genes <- c(benchmark.genes, model.genes,"subtype")
         write.table(anc.genes.dat, file = paste0(ancestry.dir, "/eas_",out_f,"_genes.txt" ), sep = "\t", col.names = TRUE, row.names = FALSE)
         eas.model <- phyloFrame(benchmark.genes, eas.train, new.dir.eas, out_f, run.penalties) #BENCHMARK
-        rescaled.eas.train <- ancestry.rescale(eas.train, temp.anc.genes)
+        #rescaled.eas.train <- ancestry.rescale(eas.train, temp.anc.genes)
         pf.pass.genes <- c(temp.anc.genes, model.genes, "subtype")
-        pf.eas.model <- phyloFrame(pf.pass.genes, rescaled.eas.train, pf.new.dir.eas, out_f, run.penalties) #PHYLOFRAME
+        pf.eas.model <- phyloFrame(pf.pass.genes, eas.train, pf.new.dir.eas, out_f, run.penalties) #PHYLOFRAME
       }else{
         model.input.genes <- get.genes.V1(network, model.genes, node, edge, eas.train, exomeAF) #get network genes for phyloframe and varying genes for benchmark for this batch
         ancestry.genes <- model.input.genes$phyloFrame # these get passed into phyloframe with no penalty
@@ -539,15 +572,19 @@ if(continue == 1){
       ancestry.genes <- model.input.genes$phyloFrame # these get passed into phyloframe with no penalty
       temp.anc.genes <- ancestry.genes[!(ancestry.genes %in% model.genes)]
       anc.genes.dat <- as.data.frame(temp.anc.genes)
-      variable.genes <- length(anc.genes.dat$temp.anc.genes)
-      benchmark.genes <- pf_top_varying_genes(admixed.train,length(temp.anc.genes))## ADDED
-      benchmark.genes <- c(benchmark.genes, model.genes)
+      #variable.genes <- length(anc.genes.dat$temp.anc.genes)
+      # benchmark.genes <- pf_top_varying_genes(admixed.train,length(temp.anc.genes))## ADDED
+      # benchmark.genes <- c(benchmark.genes, model.genes)
+      gene.list <- base.admixed.genes[-length(base.admixed.genes)]
+      index <- sample(1:length(gene.list), length(temp.anc.genes)) # need to add to each ancestry.
+      benchmark.genes <- gene.list[index]
+      benchmark.genes <- c(benchmark.genes, model.genes,"subtype")
       
       write.table(anc.genes.dat, file = paste0(ancestry.dir, "/admixed_",out_f,"_genes.txt" ), sep = "\t", col.names = TRUE, row.names = FALSE)
       admixed.model <- phyloFrame(benchmark.genes, admixed.train, new.dir.adm, out_f, run.penalties) #BENCHMARK
-      rescaled.admixed.train <- ancestry.rescale(admixed.train, temp.anc.genes)
+      #rescaled.admixed.train <- ancestry.rescale(admixed.train, temp.anc.genes)
       pf.pass.genes <- c(temp.anc.genes, model.genes, "subtype")
-      pf.admixed.model <- phyloFrame(pf.pass.genes, rescaled.admixed.train, pf.new.dir.adm, out_f, run.penalties) #PHYLOFRAME
+      pf.admixed.model <- phyloFrame(pf.pass.genes, admixed.train, pf.new.dir.adm, out_f, run.penalties) #PHYLOFRAME
     }else{
       model.input.genes <- get.genes.V1(network, model.genes, node, edge, admixed.train, exomeAF) #get network genes for phyloframe and varying genes for benchmark for this batch
       ancestry.genes <- model.input.genes$phyloFrame # these get passed into phyloframe with no penalty
@@ -624,15 +661,19 @@ if(continue == 1){
       ancestry.genes <- model.input.genes$phyloFrame
       temp.anc.genes <- ancestry.genes[!(ancestry.genes %in% model.genes)]
       anc.genes.dat <- as.data.frame(temp.anc.genes)
-      variable.genes <- length(anc.genes.dat$temp.anc.genes)
-      benchmark.genes <- pf_top_varying_genes(mixed.train,length(temp.anc.genes))## ADDED
-      benchmark.genes <- c(benchmark.genes, model.genes)
+      #variable.genes <- length(anc.genes.dat$temp.anc.genes)
+      # benchmark.genes <- pf_top_varying_genes(mixed.train,length(temp.anc.genes))## ADDED
+      # benchmark.genes <- c(benchmark.genes, model.genes)
+      gene.list <- base.mixed.genes[-length(base.mixed.genes)]
+      index <- sample(1:length(gene.list), length(temp.anc.genes)) # need to add to each ancestry.
+      benchmark.genes <- gene.list[index]
+      benchmark.genes <- c(benchmark.genes, model.genes,"subtype")
       
       write.table(anc.genes.dat, file = paste0(ancestry.dir, "/mixed_",out_f,"_genes.txt" ), sep = "\t", col.names = TRUE, row.names = FALSE)
       mixed.model <- phyloFrame(benchmark.genes, mixed.train, new.dir.mix, out_f,run.penalties) #BENCHMARK
-      rescaled.mixed.train <- ancestry.rescale(mixed.train, temp.anc.genes)
+      #rescaled.mixed.train <- ancestry.rescale(mixed.train, temp.anc.genes)
       pf.pass.genes <- c(temp.anc.genes, model.genes, "subtype")#ADDED
-      pf.mixed.model <- phyloFrame(pf.pass.genes, rescaled.mixed.train, pf.new.dir.mix, out_f, run.penalties) #PHYLOFRAME
+      pf.mixed.model <- phyloFrame(pf.pass.genes, mixed.train, pf.new.dir.mix, out_f, run.penalties) #PHYLOFRAME
     }else{
       model.input.genes <- get.genes.V1(network, model.genes, node, edge, mixed.train, exomeAF) #get network genes for phyloframe and varying genes for benchmark for this batch
       ancestry.genes <- model.input.genes$phyloFrame # 
@@ -669,7 +710,14 @@ if(continue == 1){
     
   }
 }
+# model.path <- "pf08_03thyroid_10000_V2_expr700_Netowrk_and_allele_change_ANCVAR_poster_version"
+# disease <- "thyroid"
+# model.path <- "pf08_03breast_10000_V2_expr700_Netowrk_and_allele_change_ANCVAR50_poster_version"
+# disease <- "breast"
+# model.path <- "pf08_03uterine_10000_V2_expr700_Netowrk_and_allele_change_ANCVAR50_poster_version"
+# disease <- "uterine"
 
+# en.mixture <- 0.8
 ##### CREATE PLOTS #### 
 run(disease, model.path, "admixed", "admixed", en.mixture)
 run(disease, model.path, "mixed_ancestry", "mixed", en.mixture)
