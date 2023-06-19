@@ -23,7 +23,7 @@ set.directory <- function(in.dir){
 
 ## expects matrix with samples as column names 
 ## -- trim expression matrix to the selected samples and genes for current run --  ##
-## result is genes x sample 
+## result is genes x sample matrix
 trim.expr.matrix <- function(expression_matrix, include_genes, include_samples){
   if(!(is.null(include_genes)))
   {
@@ -45,7 +45,7 @@ trim.expr.matrix <- function(expression_matrix, include_genes, include_samples){
 
 ## expects matrix with samples as row names 
 trim.expr.matrix_OG <- function(expression_matrix, include_samples){
-    #### used to narrow samples for runs with even eas, afr, and euro samples ####
+    #### used to narrow samples for ancestry runs  ####
     final.expression <- expression_matrix[rownames(expression_matrix) %in% include_samples,]
   return(final.expression)
 }
@@ -174,25 +174,37 @@ elasticnet.run <- function(in.matrix, directory, out_file, en.mix, seed=4831){
   return(my_model)
 }
 
+
+#Recall = TruePositives / (TruePositives + FalseNegatives)
+#Precision = TruePositives / (TruePositives + FalsePositives)
+my.recall <- function(results){
+  false_negative <- nrow(results[results$.pred_class == "Luminal",])
+  true_positive <- nrow(results[results$.pred_class == "Basal",])
+  rec <- true_positive/(true_positive + false_negative)
+  prec <- true_positive/(true_positive + 0) # false positive will always be 0 here becayse we have no luminal samples.
+}
+
+
+#model.metrics(curr.mod, expr.dat, out.dir, paste0("PF",ancestry,"_model_",i), "Luminal","Basal")
 ## for each model fit, call this on each ancestry ## 
+
 model.metrics <- function(my_model, dat, directory, out_file, subtype1, subtype2)
 {
   pred_prob <- predict(my_model, dat, type = "prob")
   pred_class <- predict(my_model, dat, type = "class")
-  results <- dat %>% dplyr::select(subtype) %>% bind_cols(pred_class, pred_prob) 
+  results <- dat %>% dplyr::select(subtype) %>% bind_cols(pred_class, pred_prob)
   results <- rownames_to_column(results, "sample_id")
   write.table(results, paste0(directory,"/", out_file,"_results.tsv"), sep = "\t", col.names = TRUE, row.names = FALSE)
   # new.res1 <- bind_cols(dat$subtype, results$.pred_Basal, results$.pred_Luminal, results$.pred_class)
   # colnames(new.res) <- c("subtype", ".pred_Basal", ".pred_Luminal", ".pred_class")
-  new.res <- bind_cols(dat$subtype, results[,4], results[,5], results$.pred_class)#TODO will probably get an error here
-  colnames(new.res) <- c("subtype", paste0(".pred_",subtype1), paste0(".pred_",subtype2), ".pred_class")#TODO will probably get an error here
+  new.res <- bind_cols(dat$subtype, results[,4], results[,5], results$.pred_class)
+  colnames(new.res) <- c("subtype", paste0(".pred_",subtype1), paste0(".pred_",subtype2), ".pred_class")
   confusion <- conf_mat(results, truth = subtype,estimate = .pred_class)
   confusion
   conf.df <- as.data.frame(confusion$table)
-
   write_delim(conf.df, paste0(directory,"/", out_file,"_confusion_matrix.tsv"), delim  = "\t")
   #auc <- roc_auc(new.res, truth = subtype, estimate = .pred_Basal)
-  auc <- roc_auc(new.res, truth = subtype, estimate = paste0(".pred_",subtype1)) #TODO will probably get an error here
+  auc <- roc_auc(new.res, truth = subtype, estimate = paste0(".pred_",subtype1)) 
   #- all can be put in 1 matrix - #
   senss <- yardstick::sens(results, truth = subtype, estimate = .pred_class)
   specc <- yardstick::spec(results, truth = subtype, estimate = .pred_class)
@@ -206,7 +218,24 @@ model.metrics <- function(my_model, dat, directory, out_file, subtype1, subtype2
   print(metrics)
   write.table(metrics,paste0(directory,"/", out_file,"_metrics.tsv"), sep = "\t", col.names = TRUE, row.names = FALSE)
   #return(metrics)
-}  
+}
+## MODEL METRICS FOR SUBSAHARAN AFRICAN VALIDATION SET:
+# model.metrics <- function(my_model, dat, directory, out_file, subtype1, subtype2)
+# {
+#   pred_prob <- predict(my_model, dat, type = "prob")
+#   pred_class <- predict(my_model, dat, type = "class")
+#   results <- dat %>% dplyr::select(subtype) %>% bind_cols(pred_class, pred_prob)
+#   results <- rownames_to_column(results, "sample_id")
+#   write.table(results, paste0(directory,"/", out_file,"_results.tsv"), sep = "\t", col.names = TRUE, row.names = FALSE)
+#   false_negative <- nrow(results[results$.pred_class == "Luminal",])
+#   true_positive <- nrow(results[results$.pred_class == "Basal",])
+#   rec <- true_positive/(true_positive + false_negative)
+# 
+#   prec <- true_positive/(true_positive + 0)
+#   to.write <- data.frame(c("Recall", "Precision") ,c(rec, prec))
+#   write.table(to.write, paste0(directory,"/", out_file,"_results.tsv"), sep = "\t", col.names = TRUE, row.names = FALSE)
+# }
+
   
   
   
