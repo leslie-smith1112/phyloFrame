@@ -280,7 +280,7 @@ run <- function(disease, dir, ancestry.sample, ancestry.model, mixture){
                                   "admixed"="orange",
                                   "eas"="green",
                                   "eur" = "red",
-                                  "mixed" = "purple")) + xlim(0.9,1) + ylim(0.9,1) + geom_abline()
+                                  "mixed" = "purple")) + xlim(0,1) + ylim(0,1) + geom_abline()
   #p
   png(paste0(df.path,ancestry.model, "model_performance.png"),width = 800, height = 600)
   print(p)
