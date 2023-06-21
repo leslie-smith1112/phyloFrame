@@ -12,8 +12,7 @@ library(igraph)
 source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/new_exomeAF_nosex_ordering.R")
 source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/expression_elasticnet.R")
 
-
-get.network <- function(tissue.network, dz.sig, neighbor, edge.weight){
+get.network <- function(tissue.network, dz.sig){
   neighbor <- 2
   cut.graph <- tissue.network[((tissue.network$Connection >= 0.2) & (tissue.network$Connection < 0.51)),] 
   new.sig <- dz.sig[(dz.sig %in% cut.graph$Gene1 | dz.sig %in% cut.graph$Gene2)]
@@ -32,13 +31,13 @@ get.network <- function(tissue.network, dz.sig, neighbor, edge.weight){
   return(node.names)
 }
 
-get.genes.V2 <- function(tiss.net, dz.genes, the.node, the.edge, expression, exomeAF){
-  network.genes <- get.network(tiss.net, dz.genes, the.node, the.edge)
-  top.anc.dat <- order_frequencies(network.genes, exomeAF, expression) # base genes will be model genes (the base sig)
+get.genes.V2 <- function(tiss.net, dz.genes,expression, exomeAF){
+  network.genes <- get.network(tiss.net, dz.genes) #tiss.net is the network files, dz.genes is the start nodes
+  top.anc.dat <- order_frequencies(network.genes, exomeAF, expression) 
   top.anc.dat <- unlist(top.anc.dat)
   # make sure genes are in the expression matrix
   top.anc.dat <- top.anc.dat[top.anc.dat %in% colnames(expression)] # make sure genes are in expression matrix
-  top.anc.dat <- top.anc.dat[!(top.anc.dat %in% dz.genes)] 
+  top.anc.dat <- top.anc.dat[!(top.anc.dat %in% dz.genes)] #remove inital genes from gene list to write ancestry speicifc genes to file - dz.genes are added back in other script
   print(length(top.anc.dat))
   genes <- list("phyloFrame" = top.anc.dat, "benchmark" = NULL) 
   return(genes)
