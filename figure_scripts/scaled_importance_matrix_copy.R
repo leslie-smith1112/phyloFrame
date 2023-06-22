@@ -1,11 +1,10 @@
+#FIGURE NOT IN PAPER - USED IN PIPELINE OUTPUT
 #############################################################################
 #SCRIPT FOR GENE WEIGHT COMPARISON BETWEEN BENCHMARK AND PHYLOFRAME SIGNATURES. 
 #############################################################################
 library(pheatmap)
 library(grid)
- # disease <- "thyroid" ## CHANGE HERE
- # work.dir <- "pen1_version1_3" ## CHANGE HERE 
- # get.matrix(disease, work.dir)
+
 get.matrix <- function(disease, work.dir, plot.dir){
   dir <- paste0("/home/leslie.smith1/blue_kgraim/leslie.smith1/phyloFrame/diseases/",disease,"/",work.dir,"/model_runs/")
   
