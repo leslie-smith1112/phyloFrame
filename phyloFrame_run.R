@@ -244,7 +244,8 @@ if(continue == 1){
     
     ## keep top 10000 genes for workflow
     base.eur.genes <- pf_top_varying_genes(eur.train, variable.genes)
-    ## get the baseline disease signature
+    ## get the baseline disease signature - NOTE: phyloFrame function just runs elastic net on a subset of genes - the phyloFrame method is primary implemented in 
+    # the function V2, where the network walk and allele frequency sorting occur. - TODO function is poorly named and needs to be be changed. 
     eur.base_pf <- phyloFrame(base.eur.genes, eur.train, pf.base.new.eur, out_f, en.mixture) 
     
     ## read back in the signature to use genes as start for network walk
@@ -582,7 +583,6 @@ if(continue == 1){
       model.metrics(mixed.model, mixed.test, new.dir.mix, mixed.out, subtype1, subtype2)
       model.metrics(pf.mixed.model, mixed.test, pf.new.dir.mix, mixed.out, subtype1, subtype2)
     }
-    
   }
 }
 
