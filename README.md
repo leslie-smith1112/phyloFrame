@@ -1,7 +1,15 @@
 # phyloFrame
 Workflow for ancestry unbaised genetic signatures
 
--- GnomAD VCF parsing done in leslie-smith1112/gnomad_vcf_parsing.  Kept as seperate directory for nor for simplicity in dependencies.
+# Version
+1.0
+
+# Authors
+Leslie Smith, James A Cahill, Kiley Graim
+
+# Base Information
+
+-- GnomAD VCF parsing done in leslie-smith1112/gnomad_vcf_parsing.  Kept as seperate directory for now for simplicity in dependencies.
 
 -- Prereqs for the pipeline include the annotated the parsed VCF files from Gnomad and the HumanBase network. This can be done using the script annotate_network.R. All scripts are run using slurm, example of all scripts are provided in the ./slurm_script directory. 
 
