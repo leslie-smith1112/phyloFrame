@@ -20,9 +20,8 @@ source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/sa
 source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/diseases/breast.R")
 source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/diseases/thyroid.R")
 source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/diseases/uterine.R")
-source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/differential_expression_GSEA_analysis.R")
-source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/scaled_importance_matrix.R")
-source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/get_ancestry_models.R")
+source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/figure_scripts/scaled_importance_matrix.R")
+source("/home/leslie.smith1/blue_kgraim/leslie.smith1/Repositories/phyloFrame/figure_scripts/get_ancestry_models.R")
 
 
 

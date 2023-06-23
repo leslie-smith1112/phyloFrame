@@ -1,4 +1,4 @@
-#BRCA expression data PhyloFrame 
+
 library(tidymodels)
 library(workflows) #tidy models package for bundling model specs 
 library(parsnip) #for modeling 
@@ -204,16 +204,16 @@ model.metrics <- function(my_model, dat, directory, out_file, subtype1, subtype2
   conf.df <- as.data.frame(confusion$table)
   write_delim(conf.df, paste0(directory,"/", out_file,"_confusion_matrix.tsv"), delim  = "\t")
   #auc <- roc_auc(new.res, truth = subtype, estimate = .pred_Basal)
-  auc <- roc_auc(new.res, truth = subtype, estimate = paste0(".pred_",subtype1)) 
+  auc <- roc_auc(new.res, subtype, paste0(".pred_",subtype1)) 
   #- all can be put in 1 matrix - #
-  senss <- yardstick::sens(results, truth = subtype, estimate = .pred_class)
-  specc <- yardstick::spec(results, truth = subtype, estimate = .pred_class)
-  acc <- accuracy(results, truth = subtype, estimate = .pred_class)
-  prec <- yardstick::precision(results, truth = subtype,estimate = .pred_class)
-  re <- yardstick::recall(results, truth = subtype,estimate = .pred_class)
-  f <- yardstick::f_meas(results, truth = subtype,estimate = .pred_class)
-  kapp <- kap(results, truth = subtype,estimate = .pred_class)
-  mccc <- mcc(results, truth = subtype,estimate = .pred_class)
+  senss <- yardstick::sens(results,  subtype, .pred_class)
+  specc <- yardstick::spec(results,  subtype,  .pred_class)
+  acc <- accuracy(results,  subtype, .pred_class)
+  prec <- yardstick::precision(results,  subtype, .pred_class)
+  re <- yardstick::recall(results, subtype, .pred_class)
+  f <- yardstick::f_meas(results, subtype, .pred_class)
+  kapp <- kap(results,  subtype, .pred_class)
+  mccc <- mcc(results, subtype, .pred_class)
   metrics <- rbind(auc, acc, senss, specc, prec, re, f, kapp, mccc)
   print(metrics)
   write.table(metrics,paste0(directory,"/", out_file,"_metrics.tsv"), sep = "\t", col.names = TRUE, row.names = FALSE)
